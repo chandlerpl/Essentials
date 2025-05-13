@@ -7,6 +7,7 @@ import com.earth2me.essentials.User;
 import net.ess3.api.events.SignTransactionEvent;
 import net.ess3.api.IEssentials;
 import net.ess3.api.MaxMoneyException;
+import net.essentialsx.api.v2.events.ShopTransactionEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
@@ -47,6 +48,14 @@ public class SignSell extends EssentialsSign {
             }
         }
 
+        final ShopTransactionEvent transactionEvent = new ShopTransactionEvent(player, charge, money, ess);
+        ess.getServer().getPluginManager().callEvent(transactionEvent);
+        if (transactionEvent.isCancelled()) {
+            return false;
+        }
+
+        charge = transactionEvent.getCharge();
+        money = transactionEvent.getMoney();
         charge.isAffordableFor(player);
 
         final SignTransactionEvent signTransactionEvent = new SignTransactionEvent(sign, this, player, charge.getItemStack(), SignTransactionEvent.TransactionType.SELL, money.getMoney());
